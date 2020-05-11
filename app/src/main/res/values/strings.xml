@@ -5,4 +5,7 @@
     <string name="tab_text_3">Pug</string>
     <string name="tab_text_4">Labrador</string>
     <string name="dog_image">Dog Image</string>
+
+    // Error Message
+    <string name="error_message">Error %1$s</string>
 </resources>

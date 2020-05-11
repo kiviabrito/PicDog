@@ -1,36 +1,58 @@
 package com.example.picdog
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.picdog.model.FeedEntity
-import com.example.picdog.ui.main.MainFragment
+import androidx.lifecycle.*
+import com.example.picdog.model.ErrorResponse
+import com.example.picdog.network.PicDogService
+import com.example.picdog.utility.SingleLiveData
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+  private val service: PicDogService = App.picDogService
+) : ViewModel() {
 
+  // Handle Error
+  val error: SingleLiveData<String> = SingleLiveData()
+
+  // Handle RecyclerView
   private val _feed = MutableLiveData<ArrayList<String>>()
   val feed: LiveData<ArrayList<String>> = _feed
 
   fun setIndex(index: Int) {
     when (index) {
       1 -> {
-        println("HUSKY")
-        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1.jpg"))
+        getFeed("husky")
       }
       2 -> {
-        println("HOUND")
-        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1000.jpg"))
+        getFeed("hound")
       }
       3 -> {
-        println("PUG")
-        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1030.jpg"))
+        getFeed("pug")
       }
       4 -> {
-        println("LABRADOR")
-        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1066.jpg"))
+        getFeed("labrador")
       }
     }
   }
+
+  private fun getFeed(category: String) {
+    viewModelScope.launch(Dispatchers.Default) {
+      try {
+        val response = service.feedRequest(category, "token")
+        if (response.isSuccessful) {
+          val photoArray = arrayListOf<String>()
+          _feed.postValue(response.body()?.list?.flatMapTo(photoArray) { arrayListOf(it) })
+        } else {
+          val reader = response.errorBody()?.charStream()
+          val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
+          error.postValue(errorResponse.error.message)
+        }
+      } catch (e: Exception) {
+        error.postValue(e.message)
+      }
+    }
+  }
+
 }

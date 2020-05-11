@@ -7,18 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.picdog.MainViewModel
 import com.example.picdog.R
-import java.lang.reflect.Array.get
 
 
 class MainFragment : Fragment(), DogPictureView {
@@ -51,21 +48,27 @@ class MainFragment : Fragment(), DogPictureView {
     savedInstanceState: Bundle?
   ): View? {
     val root = inflater.inflate(R.layout.fragment_main, container, false)
-
-    val recyclerView: RecyclerView = root.findViewById(R.id.dog_list)
-    setupRecyclerView(recyclerView)
-    viewModel.feed.observe(viewLifecycleOwner, Observer { list ->
-      adapter.setItemsAdapter(list)
-    })
-
+    setupRecyclerView(root)
+    observers()
     return root
   }
 
-  private fun setupRecyclerView(recyclerView: RecyclerView) {
+  private fun setupRecyclerView(root: View) {
+    val recyclerView: RecyclerView = root.findViewById(R.id.dog_list)
     val layoutManager = GridLayoutManager(requireContext(), 2)
     recyclerView.layoutManager = layoutManager
     adapter.dogPictureView = this
     recyclerView.adapter = adapter
+  }
+
+  private fun observers() {
+    viewModel.feed.observe(viewLifecycleOwner, Observer { list ->
+      adapter.setItemsAdapter(list)
+    })
+
+    viewModel.error.observe(viewLifecycleOwner, Observer { error ->
+      Toast.makeText(requireContext(), getString(R.string.error_message,error), Toast.LENGTH_LONG).show()
+    })
   }
 
   override fun openDogPicture(picture: String) {
