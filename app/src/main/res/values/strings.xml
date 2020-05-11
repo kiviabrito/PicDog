@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PicDog</string>
+    <string name="tab_text_1">Husky</string>
+    <string name="tab_text_2">Hound</string>
+    <string name="tab_text_3">Pug</string>
+    <string name="tab_text_4">Labrador</string>
+    <string name="dog_image">Dog Image</string>
+</resources>
