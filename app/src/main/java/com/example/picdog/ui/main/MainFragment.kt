@@ -10,11 +10,15 @@ import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.picdog.MainViewModel
 import com.example.picdog.R
+import java.lang.reflect.Array.get
 
 
 class MainFragment : Fragment(), DogPictureView {
@@ -32,12 +36,14 @@ class MainFragment : Fragment(), DogPictureView {
     }
   }
 
-  private val viewModel: MainViewModel by activityViewModels()
+  private lateinit var viewModel: MainViewModel
   private val adapter: DogPictureAdapter by lazy { DogPictureAdapter(ArrayList()) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel.setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+    viewModel = ViewModelProvider(this).get(MainViewModel::class.java).apply {
+      setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+    }
   }
 
   override fun onCreateView(
@@ -56,7 +62,7 @@ class MainFragment : Fragment(), DogPictureView {
   }
 
   private fun setupRecyclerView(recyclerView: RecyclerView) {
-    val layoutManager = LinearLayoutManager(requireContext())
+    val layoutManager = GridLayoutManager(requireContext(), 2)
     recyclerView.layoutManager = layoutManager
     adapter.dogPictureView = this
     recyclerView.adapter = adapter
@@ -72,7 +78,7 @@ class MainFragment : Fragment(), DogPictureView {
 
     val builder = Dialog(requireContext())
     builder.requestWindowFeature(Window.FEATURE_NO_TITLE)
-    builder.setContentView(expandedImage)
+    builder.setContentView(expandedLayout)
     builder.show()
   }
 

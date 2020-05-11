@@ -17,19 +17,19 @@ class MainViewModel : ViewModel() {
     when (index) {
       1 -> {
         println("HUSKY")
-        _feed.postValue(arrayListOf())
+        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1.jpg"))
       }
       2 -> {
         println("HOUND")
-        _feed.postValue(arrayListOf())
+        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1000.jpg"))
       }
       3 -> {
         println("PUG")
-        _feed.postValue(arrayListOf())
+        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1030.jpg"))
       }
       4 -> {
         println("LABRADOR")
-        _feed.postValue(arrayListOf())
+        _feed.postValue(arrayListOf("https://images.dog.ceo/breeds/hound-english/n02089973_1066.jpg"))
       }
     }
   }

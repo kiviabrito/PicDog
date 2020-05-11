@@ -16,6 +16,7 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     R.string.tab_text_4
   )
 
+
   override fun getItem(position: Int): Fragment {
     return MainFragment.newInstance(position + 1)
   }
