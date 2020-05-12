@@ -1,6 +1,6 @@
 package com.example.picdog.model
 
-data class SuccessResponse(
+data class UserResponse(
     val user : UserEntity
 )
 

@@ -7,11 +7,11 @@ import com.example.picdog.model.UserEntity
 @Dao
 interface FeedDao {
 
-  @Query("SELECT * FROM FeedEntity")
+  @Query("SELECT * FROM feedentity")
   fun selectAll(): List<FeedEntity>
 
-  @Query("SELECT * FROM FeedEntity WHERE category LIKE :category")
-  fun findByCategory(category: String): FeedEntity
+  @Query("SELECT * FROM feedentity WHERE category LIKE :category LIMIT 1")
+  fun findByCategory(category: String): FeedEntity?
 
   @Delete
   fun delete(pokemon: FeedEntity)

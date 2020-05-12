@@ -53,6 +53,7 @@ class DogPictureAdapter(private var items: ArrayList<String>) :
 
       Glide.with(itemView.context)
         .load(item)
+        .centerCrop()
         .into(imageView)
 
     }

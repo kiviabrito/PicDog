@@ -6,7 +6,7 @@ import com.example.picdog.model.UserEntity
 @Dao
 interface UserDao {
 
-  @Query("SELECT * FROM UserEntity")
+  @Query("SELECT * FROM userentity")
   fun selectAll(): List<UserEntity>
 
   @Delete

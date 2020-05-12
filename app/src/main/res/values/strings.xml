@@ -8,4 +8,7 @@
 
     // Error Message
     <string name="error_message">Error %1$s</string>
+  <string name="email">Enter Email</string>
+    <string name="welcome_to_picdog">Welcome to\nPicDog</string>
+    <string name="sign_up">Sign Up</string>
 </resources>

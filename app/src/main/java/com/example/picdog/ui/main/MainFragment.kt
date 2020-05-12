@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.picdog.MainViewModel
 import com.example.picdog.R
+import kotlinx.android.synthetic.main.fragment_main.view.*
 
 
 class MainFragment : Fragment(), DogPictureView {
@@ -48,8 +48,9 @@ class MainFragment : Fragment(), DogPictureView {
     savedInstanceState: Bundle?
   ): View? {
     val root = inflater.inflate(R.layout.fragment_main, container, false)
+    root.main_progress_bar.visibility = View.VISIBLE
     setupRecyclerView(root)
-    observers()
+    observers(root)
     return root
   }
 
@@ -61,13 +62,15 @@ class MainFragment : Fragment(), DogPictureView {
     recyclerView.adapter = adapter
   }
 
-  private fun observers() {
+  private fun observers(root: View) {
     viewModel.feed.observe(viewLifecycleOwner, Observer { list ->
       adapter.setItemsAdapter(list)
+      root.main_progress_bar.visibility = View.GONE
     })
 
     viewModel.error.observe(viewLifecycleOwner, Observer { error ->
       Toast.makeText(requireContext(), getString(R.string.error_message,error), Toast.LENGTH_LONG).show()
+      root.main_progress_bar.visibility = View.GONE
     })
   }
 
