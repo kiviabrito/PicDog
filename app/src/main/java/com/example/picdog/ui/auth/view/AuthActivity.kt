@@ -12,13 +12,10 @@ import com.example.picdog.R
 import com.example.picdog.ui.auth.AuthStateEvent
 import com.example.picdog.ui.auth.AuthViewModel
 import com.example.picdog.ui.main.view.MainActivity
-import com.example.picdog.utility.DataState
-import com.example.picdog.utility.DataStateListener
 import kotlinx.android.synthetic.main.activity_auth.*
 
-class AuthActivity : AppCompatActivity(), DataStateListener {
+class AuthActivity : AppCompatActivity() {
 
-  lateinit var dataStateHandler: DataStateListener
   lateinit var viewModel: AuthViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +45,18 @@ class AuthActivity : AppCompatActivity(), DataStateListener {
 
   private fun subscribeObservers() {
     viewModel.dataState.observe(this, Observer { dataState ->
-      // Handle Loading and Message
-      dataStateHandler.onDataStateChange(dataState)
+      // Handle Message
+      dataState.message?.let { event ->
+        event.getContentIfNotHandled()?.let { message ->
+          Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+      }
+      // Handle loading
+      showProgressBar(dataState.loading)
       // Handle Data<T>
       dataState.data?.let { event ->
         event.getContentIfNotHandled()?.let { mainViewState ->
-          println("DEBUG: DataState: ${mainViewState}")
+          println("DEBUG: DataState: $mainViewState")
           mainViewState.user?.let {
             viewModel.setUser(it)
           }
@@ -64,7 +67,7 @@ class AuthActivity : AppCompatActivity(), DataStateListener {
     viewModel.viewState.observe(this, Observer { viewState ->
       // Handle Sign Up Response
       viewState.user?.let { success ->
-        println("DEBUG: Sign up response is success: ${success}")
+        println("DEBUG: Sign up response is success: $success")
         if (success) {
           val intent = Intent(this, MainActivity::class.java)
           startActivity(intent)
@@ -74,33 +77,11 @@ class AuthActivity : AppCompatActivity(), DataStateListener {
     })
   }
 
-  override fun onDataStateChange(dataState: DataState<*>?) {
-    dataState?.let {
-      // Handle loading
-      showProgressBar(dataState.loading)
-      // Handle Message
-      dataState.message?.let { event ->
-        event.getContentIfNotHandled()?.let { message ->
-          Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-      }
-    }
-  }
-
   private fun showProgressBar(isVisible: Boolean) {
     if (isVisible) {
       auth_progress_bar.visibility = View.VISIBLE
     } else {
       auth_progress_bar.visibility = View.INVISIBLE
-    }
-  }
-
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    try {
-      dataStateHandler = this
-    } catch (e: ClassCastException) {
-      println("$this must implement DataStateListener")
     }
   }
 

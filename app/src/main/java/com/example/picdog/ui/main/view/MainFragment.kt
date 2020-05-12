@@ -1,13 +1,13 @@
 package com.example.picdog.ui.main.view
 
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide
 import com.example.picdog.R
 import com.example.picdog.ui.main.MainStateEvent
 import com.example.picdog.ui.main.MainViewModel
-import com.example.picdog.utility.DataStateListener
+import kotlinx.android.synthetic.main.fragment_main.*
 
 
 class MainFragment : Fragment(), DogPictureView {
@@ -36,11 +36,8 @@ class MainFragment : Fragment(), DogPictureView {
   }
 
   private lateinit var viewModel: MainViewModel
-  lateinit var dataStateHandler: DataStateListener
   private val adapter: DogPictureAdapter by lazy {
-    DogPictureAdapter(
-      listOf()
-    )
+    DogPictureAdapter(listOf())
   }
 
   override fun onCreateView(
@@ -73,31 +70,31 @@ class MainFragment : Fragment(), DogPictureView {
     recyclerView.adapter = adapter
   }
 
-  private fun subscribeObservers(){
+  private fun subscribeObservers() {
     viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-
-      // Handle Loading and Message
-      dataStateHandler.onDataStateChange(dataState)
-
-      // handle Data<T>
-      dataState.data?.let{ event ->
-        event.getContentIfNotHandled()?.let{ mainViewState ->
-
+      // Handle Message
+      dataState.message?.let { event ->
+        event.getContentIfNotHandled()?.let { message ->
+          Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
+      }
+      // Handle loading
+      showProgressBar(dataState.loading)
+      // Handle Data<T>
+      dataState.data?.let { event ->
+        event.getContentIfNotHandled()?.let { mainViewState ->
           println("DEBUG: DataState: $mainViewState")
-
-          mainViewState.feed?.let{ list ->
+          mainViewState.feed?.let { list ->
             // set BlogPosts data
             viewModel.setFeedData(list)
           }
-
         }
       }
     })
 
-    viewModel.viewState.observe(viewLifecycleOwner, Observer {viewState ->
-      viewState.feed?.let {list ->
-        // set BlogPosts to RecyclerView
-        println("DEBUG: Setting blog posts to RecyclerView: ${list}")
+    viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
+      viewState.feed?.let { list ->
+        println("DEBUG: Setting pictures to RecyclerView: ${list}")
         adapter.setItemsAdapter(list)
       }
 
@@ -118,14 +115,12 @@ class MainFragment : Fragment(), DogPictureView {
     builder.show()
   }
 
-  override fun onAttach(context: Context) {
-    super.onAttach(context)
-    try{
-      dataStateHandler = context as DataStateListener
-    }catch(e: ClassCastException){
-      println("$context must implement DataStateListener")
+  private fun showProgressBar(isVisible: Boolean) {
+    if (isVisible) {
+      main_progress_bar.visibility = View.VISIBLE
+    } else {
+      main_progress_bar.visibility = View.INVISIBLE
     }
-
   }
 
 }

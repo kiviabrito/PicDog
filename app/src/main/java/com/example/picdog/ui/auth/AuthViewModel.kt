@@ -51,7 +51,7 @@ class AuthViewModel(
   }
 
   private fun getCurrentViewStateOrNew(): AuthViewState {
-    return viewState.value?. ?: AuthViewState()
+    return viewState.value ?: AuthViewState()
   }
 
   /**

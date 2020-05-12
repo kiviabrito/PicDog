@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -14,18 +12,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import com.example.picdog.R
 import com.example.picdog.R.id.action_sign_out
-import com.example.picdog.utility.DataState
-import com.example.picdog.utility.DataStateListener
 import com.example.picdog.ui.auth.view.AuthActivity
 import com.example.picdog.ui.main.MainStateEvent
 import com.example.picdog.ui.main.MainViewModel
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), DataStateListener {
+class MainActivity : AppCompatActivity() {
 
-  lateinit var dataStateHandler: DataStateListener
   lateinit var viewModel: MainViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,8 +71,7 @@ class MainActivity : AppCompatActivity(), DataStateListener {
 
   private fun subscribeObservers() {
     viewModel.dataState.observe(this, Observer { dataState ->
-      // Handle Loading and Message
-      dataStateHandler.onDataStateChange(dataState)
+      // Loading and Message are being handle by the fragment.
       // handle Data<T>
       dataState.data?.let { event ->
         event.getContentIfNotHandled()?.let { mainViewState ->
@@ -104,36 +97,6 @@ class MainActivity : AppCompatActivity(), DataStateListener {
     intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
     startActivity(intent)
     finish()
-  }
-
-  override fun onDataStateChange(dataState: DataState<*>?) {
-    dataState?.let {
-      // Handle loading
-      showProgressBar(dataState.loading)
-      // Handle Message
-      dataState.message?.let { event ->
-        event.getContentIfNotHandled()?.let { message ->
-          Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-      }
-    }
-  }
-
-  private fun showProgressBar(isVisible: Boolean) {
-    if (isVisible) {
-      main_progress_bar.visibility = View.VISIBLE
-    } else {
-      main_progress_bar.visibility = View.INVISIBLE
-    }
-  }
-
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    try {
-      dataStateHandler = this
-    } catch (e: ClassCastException) {
-      println("$this must implement DataStateListener")
-    }
   }
 
 }

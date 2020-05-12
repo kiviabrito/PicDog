@@ -14,6 +14,6 @@ sealed class MainStateEvent {
 
     object None : MainStateEvent()
 
-    // Add expandEmage
+    // Add expandImage
 
 }

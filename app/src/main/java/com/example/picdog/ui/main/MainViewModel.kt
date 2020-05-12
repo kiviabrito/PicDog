@@ -77,7 +77,7 @@ class MainViewModel(
   }
 
   private fun getCurrentViewStateOrNew(): MainViewState {
-    return viewState.value?. ?: MainViewState()
+    return viewState.value ?: MainViewState()
   }
 
   /**
