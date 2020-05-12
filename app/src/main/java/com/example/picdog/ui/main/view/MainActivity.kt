@@ -31,14 +31,12 @@ class MainActivity : AppCompatActivity(), DataStateListener {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-
     setupView()
   }
 
   private fun setupView() {
-    viewModel =  ViewModelProvider(this).get(MainViewModel::class.java)
-    val sectionsPagerAdapter =
-      SectionsPagerAdapter(this, supportFragmentManager)
+    viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+    val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
     val viewPager: ViewPager = findViewById(R.id.view_pager)
     viewPager.adapter = sectionsPagerAdapter
     val tabs: TabLayout = findViewById(R.id.tabs)
@@ -88,17 +86,16 @@ class MainActivity : AppCompatActivity(), DataStateListener {
           mainViewState.isSignOut?.let {
             viewModel.setIsSignOut(it)
           }
-
         }
       }
     })
 
     viewModel.viewState.observe(this, Observer { viewState ->
-      viewState.isSignOut?.let {
-        println("DEBUG: Setting sign out: ${it}")
+      // Handle Sign Out Response
+      viewState.isSignOut?.let { success ->
+        println("DEBUG: Sign out response is success: ${success}")
         handleSignOut()
       }
-
     })
   }
 
@@ -113,18 +110,13 @@ class MainActivity : AppCompatActivity(), DataStateListener {
     dataState?.let {
       // Handle loading
       showProgressBar(dataState.loading)
-
       // Handle Message
       dataState.message?.let { event ->
         event.getContentIfNotHandled()?.let { message ->
-          showToast(message)
+          Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
       }
     }
-  }
-
-  private fun showToast(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
   }
 
   private fun showProgressBar(isVisible: Boolean) {
@@ -143,6 +135,5 @@ class MainActivity : AppCompatActivity(), DataStateListener {
       println("$this must implement DataStateListener")
     }
   }
-
 
 }
