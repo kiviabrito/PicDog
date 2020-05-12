@@ -1,7 +1,5 @@
 package com.example.picdog.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
@@ -10,6 +8,7 @@ import com.example.picdog.App
 import com.example.picdog.db.AppDatabase
 import com.example.picdog.model.ErrorResponse
 import com.example.picdog.model.FeedEntity
+import com.example.picdog.model.FeedResponse
 import com.example.picdog.network.PicDogService
 import com.example.picdog.utility.SingleLiveData
 import com.google.gson.Gson
@@ -23,12 +22,7 @@ class MainViewModel(
   private val database: AppDatabase = App.db
 ) : ViewModel() {
 
-  // Handle Error
-  val error: SingleLiveData<String> = SingleLiveData()
-
-  // Handle RecyclerView
-  private val _feed = MutableLiveData<ArrayList<String>>()
-  val feed: LiveData<ArrayList<String>> = _feed
+  val feedResponse: SingleLiveData<FeedResponse> = SingleLiveData()
 
   fun setIndex(index: Int) {
     when (index) {
@@ -48,16 +42,15 @@ class MainViewModel(
   }
 
   private fun getFeed(category: String) {
-    viewModelScope.launch(Dispatchers.Default) {
+    viewModelScope.launch(Dispatchers.IO) {
       try {
         val feed = database.feedDao().findByCategory(category)
         feed?.let {
-          val photoArray = arrayListOf<String>()
-          _feed.postValue(feed.list.flatMapTo(photoArray) { arrayListOf(it) })
+          postFeed(feed)
         }
         requestFromNetwork(category, feed)
       } catch (e: Exception) {
-        error.postValue(e.message)
+        feedResponse.postValue(FeedResponse.Failure(e.message ?: "Internet Connection"))
       }
     }
   }
@@ -70,27 +63,47 @@ class MainViewModel(
         if (response.isSuccessful) {
           if (feed != response.body()) {
             database.feedDao().upsert(response.body()!!)
-            val photoArray = arrayListOf<String>()
-            _feed.postValue(response.body()?.list?.flatMapTo(photoArray) { arrayListOf(it) })
-            cacheImages(photoArray)
+            postFeed(response.body()!!)
+            cacheImages(response.body()!!.list!!)
           }
         } else {
           val reader = response.errorBody()?.charStream()
           val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          error.postValue(errorResponse.error.message)
+          feedResponse.postValue(FeedResponse.Failure(errorResponse.error.message))
         }
       }
     } catch (e: Exception) {
-      error.postValue(e.message)
+      feedResponse.postValue(FeedResponse.Failure(e.message ?: "Internet Connection"))
     }
   }
 
-  private fun cacheImages(list: ArrayList<String>){
+
+  private fun postFeed(feed: FeedEntity) {
+    val photoArray = arrayListOf<String>()
+    feed.list.flatMapTo(photoArray) { arrayListOf(it) }
+    feedResponse.postValue(FeedResponse.Success(photoArray))
+  }
+
+  private fun cacheImages(list: List<String>) {
     list.forEach {
       val future: FutureTarget<File> = Glide.with(App.instance.applicationContext)
         .load(it)
         .downloadOnly(500, 500)
       future.get()
+    }
+  }
+
+  fun signOut() : Boolean {
+    return try {
+      viewModelScope.launch(Dispatchers.IO) {
+        database.userDao().deleteAll()
+        database.feedDao().deleteAll()
+        Glide.get(App.instance.applicationContext).clearDiskCache()
+      }
+      true
+    } catch (e: Exception) {
+      feedResponse.postValue(FeedResponse.Failure(e.message ?: "Unknown"))
+      false
     }
   }
 

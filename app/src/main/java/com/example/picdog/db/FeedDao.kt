@@ -13,6 +13,9 @@ interface FeedDao {
   @Query("SELECT * FROM feedentity WHERE category LIKE :category LIMIT 1")
   fun findByCategory(category: String): FeedEntity?
 
+  @Query("DELETE FROM feedentity")
+  fun deleteAll()
+
   @Delete
   fun delete(pokemon: FeedEntity)
 

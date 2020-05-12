@@ -1,14 +1,21 @@
 <resources>
-    <string name="app_name">PicDog</string>
-    <string name="tab_text_1">Husky</string>
-    <string name="tab_text_2">Hound</string>
-    <string name="tab_text_3">Pug</string>
-    <string name="tab_text_4">Labrador</string>
-    <string name="dog_image">Dog Image</string>
+  <string name="app_name">PicDog</string>
+  <string name="tab_text_1">Husky</string>
+  <string name="tab_text_2">Hound</string>
+  <string name="tab_text_3">Pug</string>
+  <string name="tab_text_4">Labrador</string>
+  <string name="dog_image">Dog Image</string>
 
-    // Error Message
-    <string name="error_message">Error %1$s</string>
+  // Error Message
+  <string name="error_message">Error %1$s</string>
+
+  // AuthActivity Layout
   <string name="email">Enter Email</string>
-    <string name="welcome_to_picdog">Welcome to\nPicDog</string>
-    <string name="sign_up">Sign Up</string>
+  <string name="welcome_to_picdog">Welcome to\nPicDog</string>
+  <string name="sign_up">Sign Up</string>
+
+  // Sign Out Dialog
+  <string name="sign_out_message">Click \"OK\" to sign out.</string>
+  <string name="sign_out">Sign Out</string>
+
 </resources>

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.picdog.R
+import com.example.picdog.model.FeedResponse
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
 
@@ -38,9 +39,8 @@ class MainFragment : Fragment(), DogPictureView {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel = ViewModelProvider(this).get(MainViewModel::class.java).apply {
-      setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
-    }
+
+
   }
 
   override fun onCreateView(
@@ -48,10 +48,18 @@ class MainFragment : Fragment(), DogPictureView {
     savedInstanceState: Bundle?
   ): View? {
     val root = inflater.inflate(R.layout.fragment_main, container, false)
-    root.main_progress_bar.visibility = View.VISIBLE
+    setupView(root)
+    return root
+  }
+
+  private fun setupView(root: View) {
+    viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
     setupRecyclerView(root)
     observers(root)
-    return root
+    if (adapter.itemCount == 0) {
+      root.main_progress_bar.visibility = View.VISIBLE
+      viewModel.setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+    }
   }
 
   private fun setupRecyclerView(root: View) {
@@ -63,14 +71,17 @@ class MainFragment : Fragment(), DogPictureView {
   }
 
   private fun observers(root: View) {
-    viewModel.feed.observe(viewLifecycleOwner, Observer { list ->
-      adapter.setItemsAdapter(list)
+    viewModel.feedResponse.observe(viewLifecycleOwner, Observer { response ->
       root.main_progress_bar.visibility = View.GONE
-    })
-
-    viewModel.error.observe(viewLifecycleOwner, Observer { error ->
-      Toast.makeText(requireContext(), getString(R.string.error_message,error), Toast.LENGTH_LONG).show()
-      root.main_progress_bar.visibility = View.GONE
+      when (response) {
+        is FeedResponse.Success -> {
+          adapter.setItemsAdapter(response.list)
+          root.main_progress_bar.visibility = View.GONE
+        }
+        is FeedResponse.Failure -> {
+          Toast.makeText(requireContext(), response.message, Toast.LENGTH_LONG).show()
+        }
+      }
     })
   }
 

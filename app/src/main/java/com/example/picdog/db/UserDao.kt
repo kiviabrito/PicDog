@@ -9,6 +9,9 @@ interface UserDao {
   @Query("SELECT * FROM userentity")
   fun selectAll(): List<UserEntity>
 
+  @Query("DELETE FROM userentity")
+  fun deleteAll()
+
   @Delete
   fun delete(pokemon: UserEntity)
 

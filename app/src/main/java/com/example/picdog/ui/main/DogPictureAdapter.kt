@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.picdog.R
-import java.util.*
 
 interface DogPictureView {
   fun openDogPicture(picture: String)
@@ -55,7 +54,6 @@ class DogPictureAdapter(private var items: ArrayList<String>) :
         .load(item)
         .centerCrop()
         .into(imageView)
-
     }
 
   }
@@ -80,6 +78,8 @@ class DogPictureAdapter(private var items: ArrayList<String>) :
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
       return oldList[oldItemPosition].equals(newList[newItemPosition])
     }
+
   }
+
 }
 

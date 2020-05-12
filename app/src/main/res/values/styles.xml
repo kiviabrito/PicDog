@@ -21,4 +21,9 @@
         <item name="android:windowBackground">@drawable/splash_activity</item>
     </style>
 
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:fontFamily">@font/architects_daughter</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
