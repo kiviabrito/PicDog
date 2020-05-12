@@ -42,7 +42,7 @@ class AuthActivity : AppCompatActivity(), DataStateListener {
   private fun handleSignUp() {
     sign_up_btn.setOnClickListener {
       val email = email_input.text.toString()
-      viewModel.setStateEvent(AuthStateEvent.GetUserEvent(email))
+      viewModel.setStateEvent(AuthStateEvent.SignUpTaped(email))
     }
   }
 

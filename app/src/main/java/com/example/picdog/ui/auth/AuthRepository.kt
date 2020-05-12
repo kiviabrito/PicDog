@@ -10,6 +10,11 @@ import com.example.picdog.utility.DataState
 import com.example.picdog.utility.GenericApiResponse
 import com.example.picdog.utility.NetworkBoundResource
 
+/**
+ * getUser(eamil: String) - first creatCall() is called and fetches user from server, once it gets the response
+ * handleApiSuccessResponse() is called and it updates the database and the DataState.
+ */
+
 class AuthRepository(
   val service: PicDogService = App.picDogService,
   val dataBase: AppDatabase = App.db
@@ -23,10 +28,8 @@ class AuthRepository(
       }
 
       override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<UserResponse>) {
-
         // Update DataBase
         dataBase.userDao().upsert(response.body.user)
-
         // Set New DataState
         result.value = DataState.data(
           null,
