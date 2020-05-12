@@ -8,6 +8,11 @@ import retrofit2.Retrofit
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
+/**
+ * Adapter Factory to implement on Retrofit Builder.
+ * https://gist.github.com/AkshayChordiya/15cfe7ca1842d6b959e77c04a073a98f
+ */
+
 class LiveDataCallAdapterFactory : Factory() {
   override fun get(
     returnType: Type,

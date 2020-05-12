@@ -6,6 +6,10 @@ import com.bumptech.glide.request.FutureTarget
 import com.example.picdog.App
 import java.io.File
 
+/**
+ * Class for caching and clear cache from Glide.
+ */
+
 class GlideCache(private val context: Context) {
 
   fun cachePictures(list: List<String>) {

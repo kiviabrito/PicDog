@@ -39,7 +39,7 @@ class MainFragment : Fragment(), DogPictureView {
   lateinit var dataStateHandler: DataStateListener
   private val adapter: DogPictureAdapter by lazy {
     DogPictureAdapter(
-      ArrayList()
+      listOf()
     )
   }
 
@@ -83,11 +83,11 @@ class MainFragment : Fragment(), DogPictureView {
       dataState.data?.let{ event ->
         event.getContentIfNotHandled()?.let{ mainViewState ->
 
-          println("DEBUG: DataState: ${mainViewState}")
+          println("DEBUG: DataState: $mainViewState")
 
-          mainViewState.feed?.let{
+          mainViewState.feed?.let{ list ->
             // set BlogPosts data
-            viewModel.setFeedData(it)
+            viewModel.setFeedData(list)
           }
 
         }

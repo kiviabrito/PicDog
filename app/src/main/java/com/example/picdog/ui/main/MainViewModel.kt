@@ -57,7 +57,7 @@ class MainViewModel(
     }
   }
 
-  fun setFeedData(list: ArrayList<String>){
+  fun setFeedData(list: List<String>){
     val update = getCurrentViewStateOrNew()
     update.feed = list
     _viewState.value = update

@@ -14,57 +14,56 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * getFeed(category: String) - first loadFromDb() is called and fetches data from the database and updates the DataState
+ * IF there are any data. Right after, creatCall() is called and fetches data from server, once it gets the response
+ * handleApiSuccessResponse() is called and verify if any data is different, if so, it updates the database and the
+ * DataState.
+ *
+ * signOut() - Deletes all database data and glide cache, and so returns a DataState.data in case the task is completed
+ * and DataState.error in case of any error.
+ */
+
 class MainRepository(
   val service: PicDogService = App.picDogService,
-  val dataBase: AppDatabase = App.db,
+  val database: AppDatabase = App.db,
   private val glideCache: GlideCache = App.glideCache
 ) {
 
   fun getFeed(category: String): LiveData<DataState<MainViewState>> {
     return object : NetworkBoundResource<FeedEntity, MainViewState>() {
 
+      override suspend fun loadFromDb() {
+        val feed = database.feedDao().findByCategory(category)
+        feed?.let {
+          setMainViewState(it.list, result)
+        }
+      }
+
       override suspend fun createCall(): LiveData<GenericApiResponse<FeedEntity>> {
-        val token = dataBase.userDao().selectAll().first().token
+        val token = database.userDao().selectAll().first().token
         return service.feedRequest(category, token)
       }
 
       override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<FeedEntity>) {
         withContext(Default) {
-          val feedFromDb = dataBase.feedDao().findByCategory(category)
+          val feedFromDb = database.feedDao().findByCategory(category)
           val feedFromResponse = response.body
-
-          // If New Data
           if (feedFromDb != feedFromResponse) {
-            val photoArray = arrayListOf<String>()
-            feedFromResponse.list.flatMapTo(photoArray) { arrayListOf(it) }
-
             // Set New DataState
-            setMainViewState(photoArray, result)
-
+            setMainViewState(feedFromResponse.list, result)
             // Update DataBase
-            dataBase.feedDao().upsert(feedFromResponse)
-
+            database.feedDao().upsert(feedFromResponse)
             // Cache Image
-            glideCache.cachePictures(photoArray)
+            glideCache.cachePictures(feedFromResponse.list)
           }
-        }
-      }
-
-      override suspend fun handleDataBase() {
-        val photoArray = arrayListOf<String>()
-        val feed = dataBase.feedDao().findByCategory(category)
-        feed?.let {
-          it.list.flatMapTo(photoArray) { url -> arrayListOf(url) }
-
-          // Set New DataState
-          setMainViewState(photoArray, result)
         }
       }
 
     }.asLiveData()
   }
 
-  suspend fun setMainViewState(arrayList: ArrayList<String>, result: MediatorLiveData<DataState<MainViewState>>) {
+  suspend fun setMainViewState(arrayList: List<String>, result: MediatorLiveData<DataState<MainViewState>>) {
     withContext(Main) {
       result.value = DataState.data(
         null,
@@ -80,8 +79,8 @@ class MainRepository(
     return try {
       // Delete Data
       GlobalScope.launch(Default) {
-        dataBase.userDao().deleteAll()
-        dataBase.feedDao().deleteAll()
+        database.userDao().deleteAll()
+        database.feedDao().deleteAll()
         glideCache.clearCache()
       }
       // Set New DataState
@@ -89,7 +88,7 @@ class MainRepository(
         (DataState.data(
           null,
           MainViewState(
-            feed = arrayListOf(),
+            feed = listOf(),
             isSignOut = true
           )
         ))

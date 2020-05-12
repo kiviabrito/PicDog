@@ -36,7 +36,7 @@ class AuthRepository(
         )
       }
 
-      override suspend fun handleDataBase() {}
+      override suspend fun loadFromDb() {}
 
     }.asLiveData()
   }

@@ -2,7 +2,7 @@ package com.example.picdog.ui.main
 
 data class MainViewState(
 
-  var feed: ArrayList<String>? = null,
+  var feed: List<String>? = null,
   var isSignOut: Boolean? = null
 
 )

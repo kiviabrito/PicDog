@@ -8,6 +8,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Class for MediatorLiveData<DataState<ViewStateType>> update.
+ * Copied from Architecture components google sample:
+ * https://github.com/android/architecture-components-samples/blob/master/GithubBrowserSample/app/src/main/java/com/android/example/github/repository/NetworkBoundResource.kt
+ */
+
 abstract class NetworkBoundResource<ResponseObject, ViewStateType> {
 
   protected val result = MediatorLiveData<DataState<ViewStateType>>()
@@ -15,7 +21,7 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType> {
   init {
     result.value = DataState.loading(true)
     GlobalScope.launch(IO) {
-      handleDataBase()
+      loadFromDb()
       val apiResponse = createCall()
       withContext(Main) {
         result.addSource(apiResponse) { response ->
@@ -60,7 +66,7 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType> {
 
   abstract suspend fun createCall(): LiveData<GenericApiResponse<ResponseObject>>
 
-  abstract suspend fun handleDataBase()
+  abstract suspend fun loadFromDb()
 
   fun asLiveData() = result as LiveData<DataState<ViewStateType>>
 }

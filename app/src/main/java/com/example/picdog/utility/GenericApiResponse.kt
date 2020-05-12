@@ -2,9 +2,11 @@ package com.example.picdog.utility
 
 
 import android.util.Log
+import com.google.gson.Gson
 import retrofit2.Response
 
 /**
+ * Class to handle responses from Retrofit.
  * Copied from Architecture components google sample:
  * https://github.com/googlesamples/android-architecture-components/blob/master/GithubBrowserSample/app/src/main/java/com/android/example/github/api/ApiResponse.kt
  */
@@ -41,7 +43,7 @@ sealed class GenericApiResponse<T> {
                 val errorMsg = if (msg.isNullOrEmpty()) {
                     response.message()
                 } else {
-                    msg
+                    Gson().fromJson(msg, ErrorResponse::class.java).error.message
                 }
                 return ApiErrorResponse(errorMsg ?: "unknown error")
             }
@@ -57,3 +59,10 @@ class ApiEmptyResponse<T> : GenericApiResponse<T>()
 data class ApiSuccessResponse<T>(val body: T) : GenericApiResponse<T>() {}
 
 data class ApiErrorResponse<T>(val errorMessage: String) : GenericApiResponse<T>()
+
+/**
+ * separate class for error response not null so that we can show specific server message.
+ */
+data class ErrorResponse(val error : Message)
+
+data class Message(val message: String)
