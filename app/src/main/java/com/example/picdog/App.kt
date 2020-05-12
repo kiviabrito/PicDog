@@ -3,23 +3,29 @@ package com.example.picdog
 import android.app.Application
 import com.example.picdog.db.AppDatabase
 import com.example.picdog.network.PicDogService
+import com.example.picdog.utility.GlideCache
 
 
-class App: Application() {
+class App : Application() {
 
-    companion object {
-        lateinit var instance: App
+  companion object {
+    lateinit var instance: App
 
-        lateinit var db : AppDatabase
+    lateinit var db: AppDatabase
 
-        val picDogService by lazy {
-            PicDogService.create()
-        }
+    val picDogService by lazy {
+      PicDogService.create()
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
-        db = AppDatabase.getInstance(this)
+    val glideCache by lazy {
+      GlideCache(instance.applicationContext)
     }
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    instance = this
+    db = AppDatabase.getInstance(this)
+  }
+
 }

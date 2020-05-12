@@ -1,28 +1,34 @@
 package com.example.picdog.ui.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.FutureTarget
 import com.example.picdog.App
 import com.example.picdog.db.AppDatabase
 import com.example.picdog.model.ErrorResponse
 import com.example.picdog.model.FeedEntity
-import com.example.picdog.model.FeedResponse
+import com.example.picdog.network.NoConnectivityException
 import com.example.picdog.network.PicDogService
+import com.example.picdog.utility.GlideCache
 import com.example.picdog.utility.SingleLiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 class MainViewModel(
   private val service: PicDogService = App.picDogService,
-  private val database: AppDatabase = App.db
+  private val database: AppDatabase = App.db,
+  private val glide: GlideCache = App.glideCache
 ) : ViewModel() {
 
-  val feedResponse: SingleLiveData<FeedResponse> = SingleLiveData()
+  val errorResponse : SingleLiveData<String> = SingleLiveData()
+
+  private val _feedResponse: MutableLiveData<ArrayList<String>> = MutableLiveData()
+  val feedResponse: LiveData<ArrayList<String>> = _feedResponse
+
+  var isConnected = true
 
   fun setIndex(index: Int) {
     when (index) {
@@ -48,14 +54,16 @@ class MainViewModel(
         feed?.let {
           postFeed(feed)
         }
-        requestFromNetwork(category, feed)
+        if (isConnected) {
+          requestUpdateFromNetwork(category, feed)
+        }
       } catch (e: Exception) {
-        feedResponse.postValue(FeedResponse.Failure(e.message ?: "Internet Connection"))
+        postError(e)
       }
     }
   }
 
-  private suspend fun requestFromNetwork(category: String, feed: FeedEntity?) {
+  private suspend fun requestUpdateFromNetwork(category: String, feed: FeedEntity?) {
     try {
       val user = database.userDao().selectAll().firstOrNull()
       user?.let { userEntity ->
@@ -64,33 +72,28 @@ class MainViewModel(
           if (feed != response.body()) {
             database.feedDao().upsert(response.body()!!)
             postFeed(response.body()!!)
-            cacheImages(response.body()!!.list!!)
+            glide.cachePictures(response.body()!!.list)
           }
         } else {
           val reader = response.errorBody()?.charStream()
           val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          feedResponse.postValue(FeedResponse.Failure(errorResponse.error.message))
+          this.errorResponse.postValue(errorResponse.error.message)
         }
       }
     } catch (e: Exception) {
-      feedResponse.postValue(FeedResponse.Failure(e.message ?: "Internet Connection"))
+      postError(e)
     }
   }
-
 
   private fun postFeed(feed: FeedEntity) {
     val photoArray = arrayListOf<String>()
     feed.list.flatMapTo(photoArray) { arrayListOf(it) }
-    feedResponse.postValue(FeedResponse.Success(photoArray))
+    _feedResponse.postValue(photoArray)
   }
 
-  private fun cacheImages(list: List<String>) {
-    list.forEach {
-      val future: FutureTarget<File> = Glide.with(App.instance.applicationContext)
-        .load(it)
-        .downloadOnly(500, 500)
-      future.get()
-    }
+  private fun postError(e: Exception) {
+    isConnected = e.message != NoConnectivityException.MESSAGE
+    errorResponse.postValue(e.message ?: NoConnectivityException.MESSAGE)
   }
 
   fun signOut() : Boolean {
@@ -98,11 +101,11 @@ class MainViewModel(
       viewModelScope.launch(Dispatchers.IO) {
         database.userDao().deleteAll()
         database.feedDao().deleteAll()
-        Glide.get(App.instance.applicationContext).clearDiskCache()
+        glide.clearCache()
       }
       true
     } catch (e: Exception) {
-      feedResponse.postValue(FeedResponse.Failure(e.message ?: "Unknown"))
+      errorResponse.postValue(e.message ?: "Unknown")
       false
     }
   }

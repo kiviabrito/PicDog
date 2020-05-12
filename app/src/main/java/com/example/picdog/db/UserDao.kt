@@ -7,22 +7,22 @@ import com.example.picdog.model.UserEntity
 interface UserDao {
 
   @Query("SELECT * FROM userentity")
-  fun selectAll(): List<UserEntity>
+  suspend fun selectAll(): List<UserEntity>
 
   @Query("DELETE FROM userentity")
-  fun deleteAll()
+  suspend fun deleteAll()
 
   @Delete
-  fun delete(pokemon: UserEntity)
+  suspend fun delete(pokemon: UserEntity)
 
   @Insert(onConflict = OnConflictStrategy.IGNORE)
-  fun insert(entity: UserEntity): Long
+  suspend fun insert(entity: UserEntity): Long
 
   @Update(onConflict = OnConflictStrategy.REPLACE)
-  fun update(entity: UserEntity)
+  suspend fun update(entity: UserEntity)
 
   @Transaction
-  fun upsert(entity: UserEntity) {
+  suspend fun upsert(entity: UserEntity) {
     val id = insert(entity)
     if (id == -1L) {
       update(entity)

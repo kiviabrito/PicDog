@@ -7,7 +7,7 @@
   <string name="dog_image">Dog Image</string>
 
   // Error Message
-  <string name="error_message">Error %1$s</string>
+  <string name="error_message">Error: %1$s</string>
 
   // AuthActivity Layout
   <string name="email">Enter Email</string>

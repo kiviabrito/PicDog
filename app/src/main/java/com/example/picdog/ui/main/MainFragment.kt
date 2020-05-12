@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.picdog.R
-import com.example.picdog.model.FeedResponse
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
 
@@ -36,12 +35,6 @@ class MainFragment : Fragment(), DogPictureView {
 
   private lateinit var viewModel: MainViewModel
   private val adapter: DogPictureAdapter by lazy { DogPictureAdapter(ArrayList()) }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -71,17 +64,17 @@ class MainFragment : Fragment(), DogPictureView {
   }
 
   private fun observers(root: View) {
-    viewModel.feedResponse.observe(viewLifecycleOwner, Observer { response ->
+    viewModel.feedResponse.observe(viewLifecycleOwner, Observer { list ->
       root.main_progress_bar.visibility = View.GONE
-      when (response) {
-        is FeedResponse.Success -> {
-          adapter.setItemsAdapter(response.list)
-          root.main_progress_bar.visibility = View.GONE
-        }
-        is FeedResponse.Failure -> {
-          Toast.makeText(requireContext(), response.message, Toast.LENGTH_LONG).show()
-        }
-      }
+      adapter.setItemsAdapter(list)
+      root.main_progress_bar.visibility = View.GONE
+
+    })
+
+    viewModel.errorResponse.observe(viewLifecycleOwner, Observer { message ->
+      root.main_progress_bar.visibility = View.GONE
+      Toast.makeText(requireContext(), getString(R.string.error_message, message), Toast.LENGTH_SHORT)
+        .show()
     })
   }
 

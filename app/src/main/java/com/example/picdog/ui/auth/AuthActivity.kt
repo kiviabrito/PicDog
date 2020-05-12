@@ -15,10 +15,6 @@ import kotlinx.android.synthetic.main.activity_auth.*
 
 class AuthActivity : AppCompatActivity() {
 
-  companion object {
-    fun newInstance() = AuthActivity()
-  }
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_auth)
@@ -46,7 +42,7 @@ class AuthActivity : AppCompatActivity() {
           startActivity(intent)
         }
         is SignupResponse.Failure -> {
-          Toast.makeText(this, response.message, Toast.LENGTH_LONG).show()
+          Toast.makeText(this, getString(R.string.error_message,response.message), Toast.LENGTH_LONG).show()
         }
       }
     })

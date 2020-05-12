@@ -38,6 +38,9 @@ class NetworkConnectionInterceptor(private val context: Context) : Interceptor {
 }
 
 class NoConnectivityException : IOException() {
+  companion object {
+    const val MESSAGE = "Internet Connection"
+  }
   override val message: String
-    get() = "Internet Connection"
+    get() = MESSAGE
 }

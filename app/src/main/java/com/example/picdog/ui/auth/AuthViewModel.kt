@@ -6,6 +6,7 @@ import com.example.picdog.App
 import com.example.picdog.db.AppDatabase
 import com.example.picdog.model.ErrorResponse
 import com.example.picdog.model.SignupResponse
+import com.example.picdog.network.NoConnectivityException
 import com.example.picdog.network.PicDogService
 import com.example.picdog.utility.SingleLiveData
 import com.google.gson.Gson
@@ -36,7 +37,7 @@ class AuthViewModel(
           signUpResponse.postValue(SignupResponse.Failure(errorResponse.error.message))
         }
       } catch (e: Exception) {
-        signUpResponse.postValue(SignupResponse.Failure(e.message ?: "Internet Connection"))
+        signUpResponse.postValue(SignupResponse.Failure(e.message ?: NoConnectivityException.MESSAGE))
       }
     }
   }

@@ -8,25 +8,25 @@ import com.example.picdog.model.UserEntity
 interface FeedDao {
 
   @Query("SELECT * FROM feedentity")
-  fun selectAll(): List<FeedEntity>
+  suspend fun selectAll(): List<FeedEntity>
 
   @Query("SELECT * FROM feedentity WHERE category LIKE :category LIMIT 1")
-  fun findByCategory(category: String): FeedEntity?
+  suspend fun findByCategory(category: String): FeedEntity?
 
   @Query("DELETE FROM feedentity")
-  fun deleteAll()
+  suspend fun deleteAll()
 
   @Delete
-  fun delete(pokemon: FeedEntity)
+  suspend fun delete(pokemon: FeedEntity)
 
   @Insert(onConflict = OnConflictStrategy.IGNORE)
-  fun insert(entity: FeedEntity): Long
+  suspend fun insert(entity: FeedEntity): Long
 
   @Update(onConflict = OnConflictStrategy.REPLACE)
-  fun update(entity: FeedEntity)
+  suspend fun update(entity: FeedEntity)
 
   @Transaction
-  fun upsert(entity: FeedEntity) {
+  suspend fun upsert(entity: FeedEntity) {
     val id = insert(entity)
     if (id == -1L) {
       update(entity)
