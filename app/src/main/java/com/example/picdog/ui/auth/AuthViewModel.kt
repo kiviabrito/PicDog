@@ -1,56 +1,59 @@
 package com.example.picdog.ui.auth
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.picdog.App
-import com.example.picdog.db.AppDatabase
-import com.example.picdog.model.ErrorResponse
-import com.example.picdog.model.SignupResponse
-import com.example.picdog.network.NoConnectivityException
-import com.example.picdog.network.PicDogService
-import com.example.picdog.utility.SingleLiveData
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.picdog.utility.AbsentLiveData
+import com.example.picdog.utility.DataState
 
 class AuthViewModel(
-  private val service: PicDogService = App.picDogService,
-  private val database: AppDatabase = App.db
+  private val repository: AuthRepository = App.authRepository
 ) : ViewModel() {
 
-  // Handle Response
-  val signUpResponse: SingleLiveData<SignupResponse> = SingleLiveData()
 
-  // Handle Sign Up Check
-  val isSignUp: SingleLiveData<Boolean> = SingleLiveData()
+  private val _stateEvent: MutableLiveData<AuthStateEvent> = MutableLiveData()
+  private val _viewState: MutableLiveData<AuthViewState> = MutableLiveData()
 
-  fun signUp(email: String) {
-    viewModelScope.launch(Dispatchers.IO) {
-      try {
-        val response = service.signupRequest(email)
-        if (response.isSuccessful) {
-          database.userDao().upsert(response.body()!!.user)
-          signUpResponse.postValue(SignupResponse.Success)
-        } else {
-          val reader = response.errorBody()?.charStream()
-          val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          signUpResponse.postValue(SignupResponse.Failure(errorResponse.error.message))
-        }
-      } catch (e: Exception) {
-        signUpResponse.postValue(SignupResponse.Failure(e.message ?: NoConnectivityException.MESSAGE))
+  val viewState: LiveData<AuthViewState>
+    get() = _viewState
+
+
+  val dataState: LiveData<DataState<AuthViewState>> = Transformations
+    .switchMap(_stateEvent) { stateEvent ->
+      stateEvent?.let {
+        handleStateEvent(stateEvent)
+      }
+    }
+
+  private fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
+    println("DEBUG: New StateEvent detected: $stateEvent")
+    return when (stateEvent) {
+
+      is AuthStateEvent.GetUserEvent -> {
+        repository.getUser(stateEvent.email)
+      }
+
+      is AuthStateEvent.None -> {
+        AbsentLiveData.create()
       }
     }
   }
 
-  fun checkIfIsSignUp() {
-    viewModelScope.launch(Dispatchers.Default) {
-      val user = App.db.userDao().selectAll().firstOrNull()
-      if (user == null) {
-        isSignUp.postValue(false)
-      } else {
-        isSignUp.postValue(true)
-      }
-    }
+  fun setUser(isSignUp: Boolean) {
+    val update = getCurrentViewStateOrNew()
+    update.user = isSignUp
+    _viewState.value = update
+  }
+
+  private fun getCurrentViewStateOrNew(): AuthViewState {
+    val value = viewState.value?.let {
+      it
+    } ?: AuthViewState()
+    return value
+  }
+
+  fun setStateEvent(event: AuthStateEvent) {
+    val state: AuthStateEvent = event
+    _stateEvent.value = state
   }
 
 }

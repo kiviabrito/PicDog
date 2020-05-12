@@ -1,113 +1,84 @@
 package com.example.picdog.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.picdog.App
-import com.example.picdog.db.AppDatabase
-import com.example.picdog.model.ErrorResponse
-import com.example.picdog.model.FeedEntity
-import com.example.picdog.network.NoConnectivityException
-import com.example.picdog.network.PicDogService
-import com.example.picdog.utility.GlideCache
-import com.example.picdog.utility.SingleLiveData
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.picdog.utility.AbsentLiveData
+import com.example.picdog.utility.DataState
 
 
 class MainViewModel(
-  private val service: PicDogService = App.picDogService,
-  private val database: AppDatabase = App.db,
-  private val glide: GlideCache = App.glideCache
+  private val repository: MainRepository = App.mainRepository
 ) : ViewModel() {
 
-  val errorResponse : SingleLiveData<String> = SingleLiveData()
 
-  private val _feedResponse: MutableLiveData<ArrayList<String>> = MutableLiveData()
-  val feedResponse: LiveData<ArrayList<String>> = _feedResponse
+  private val _stateEvent: MutableLiveData<MainStateEvent> = MutableLiveData()
+  private val _viewState: MutableLiveData<MainViewState> = MutableLiveData()
 
-  var isConnected = true
+  val viewState: LiveData<MainViewState>
+    get() = _viewState
 
-  fun setIndex(index: Int) {
-    when (index) {
-      1 -> {
-        getFeed("husky")
-      }
-      2 -> {
-        getFeed("hound")
-      }
-      3 -> {
-        getFeed("pug")
-      }
-      4 -> {
-        getFeed("labrador")
+
+  val dataState: LiveData<DataState<MainViewState>> = Transformations
+    .switchMap(_stateEvent){stateEvent ->
+      stateEvent?.let {
+        handleStateEvent(stateEvent)
       }
     }
-  }
 
-  private fun getFeed(category: String) {
-    viewModelScope.launch(Dispatchers.IO) {
-      try {
-        val feed = database.feedDao().findByCategory(category)
-        feed?.let {
-          postFeed(feed)
-        }
-        if (isConnected) {
-          requestUpdateFromNetwork(category, feed)
-        }
-      } catch (e: Exception) {
-        postError(e)
-      }
-    }
-  }
+  private fun handleStateEvent(stateEvent: MainStateEvent): LiveData<DataState<MainViewState>>{
+    println("DEBUG: New StateEvent detected: $stateEvent")
+    return when(stateEvent){
 
-  private suspend fun requestUpdateFromNetwork(category: String, feed: FeedEntity?) {
-    try {
-      val user = database.userDao().selectAll().firstOrNull()
-      user?.let { userEntity ->
-        val response = service.feedRequest(category, userEntity.token)
-        if (response.isSuccessful) {
-          if (feed != response.body()) {
-            database.feedDao().upsert(response.body()!!)
-            postFeed(response.body()!!)
-            glide.cachePictures(response.body()!!.list)
+      is MainStateEvent.GetFeedEvent -> {
+        when (stateEvent.section) {
+          1 -> {
+            repository.getFeed("husky")
           }
-        } else {
-          val reader = response.errorBody()?.charStream()
-          val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          this.errorResponse.postValue(errorResponse.error.message)
+          2 -> {
+            repository.getFeed("hound")
+          }
+          3 -> {
+            repository.getFeed("pug")
+          }
+          4 -> {
+            repository.getFeed("labrador")
+          }
+          else -> AbsentLiveData.create()
         }
       }
-    } catch (e: Exception) {
-      postError(e)
-    }
-  }
 
-  private fun postFeed(feed: FeedEntity) {
-    val photoArray = arrayListOf<String>()
-    feed.list.flatMapTo(photoArray) { arrayListOf(it) }
-    _feedResponse.postValue(photoArray)
-  }
-
-  private fun postError(e: Exception) {
-    isConnected = e.message != NoConnectivityException.MESSAGE
-    errorResponse.postValue(e.message ?: NoConnectivityException.MESSAGE)
-  }
-
-  fun signOut() : Boolean {
-    return try {
-      viewModelScope.launch(Dispatchers.IO) {
-        database.userDao().deleteAll()
-        database.feedDao().deleteAll()
-        glide.clearCache()
+      is MainStateEvent.TappedSignOut ->{
+        repository.signOut()
       }
-      true
-    } catch (e: Exception) {
-      errorResponse.postValue(e.message ?: "Unknown")
-      false
+
+      is MainStateEvent.None ->{
+        return AbsentLiveData.create()
+      }
     }
+  }
+
+  fun setFeedData(list: ArrayList<String>){
+    val update = getCurrentViewStateOrNew()
+    update.feed = list
+    _viewState.value = update
+  }
+
+  fun setIsSignOut(isSignOut : Boolean){
+    val update = getCurrentViewStateOrNew()
+    update.isSignOut = isSignOut
+    _viewState.value = update
+  }
+
+
+  private fun getCurrentViewStateOrNew(): MainViewState {
+    return viewState.value?.let {
+      it
+    }?: MainViewState()
+  }
+
+  fun setStateEvent(event: MainStateEvent){
+    val state: MainStateEvent = event
+    _stateEvent.value = state
   }
 
 }

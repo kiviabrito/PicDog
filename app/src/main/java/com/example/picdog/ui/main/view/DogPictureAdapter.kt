@@ -1,4 +1,4 @@
-package com.example.picdog.ui.main
+package com.example.picdog.ui.main.view
 
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +29,8 @@ class DogPictureAdapter(private var items: ArrayList<String>) :
 
   fun setItemsAdapter(newList: ArrayList<String>) {
     val oldList = items
-    val diffCallback = PokemonDiffCallback(oldList, newList)
+    val diffCallback =
+      PokemonDiffCallback(oldList, newList)
     val diffResult = DiffUtil.calculateDiff(diffCallback)
     items = newList
     diffResult.dispatchUpdatesTo(this)

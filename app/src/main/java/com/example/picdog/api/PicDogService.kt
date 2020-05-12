@@ -1,11 +1,13 @@
-package com.example.picdog.network
+package com.example.picdog.api
 
+import androidx.lifecycle.LiveData
 import com.example.picdog.App
 import com.example.picdog.model.FeedEntity
-import com.example.picdog.model.UserEntity
 import com.example.picdog.model.UserResponse
+import com.example.picdog.utility.GenericApiResponse
+import com.example.picdog.utility.LiveDataCallAdapterFactory
+import com.example.picdog.utility.NetworkConnectionInterceptor
 import okhttp3.OkHttpClient
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
@@ -15,14 +17,14 @@ interface PicDogService {
 
   @Headers("Content-Type: application/json")
   @POST("signup/")
-  suspend fun signupRequest(@Query("email") email: String): Response<UserResponse>
+  fun signupRequest(@Query("email") email: String): LiveData<GenericApiResponse<UserResponse>>
 
   @Headers("Content-Type: application/json")
   @GET("feed/")
-  suspend fun feedRequest(
+  fun feedRequest(
     @Query("category") category: String,
     @Header("Authorization") token: String
-  ): Response<FeedEntity>
+  ): LiveData<GenericApiResponse<FeedEntity>>
 
   companion object {
     fun create(): PicDogService {
@@ -33,6 +35,7 @@ interface PicDogService {
         .addConverterFactory(
           GsonConverterFactory.create()
         )
+        .addCallAdapterFactory(LiveDataCallAdapterFactory())
         .baseUrl("https://iddog-nrizncxqba-uc.a.run.app/")
         .client(oktHttpClient.build())
         .build()

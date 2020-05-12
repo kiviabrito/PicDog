@@ -1,4 +1,4 @@
-package com.example.picdog.network
+package com.example.picdog.utility
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -39,7 +39,7 @@ class NetworkConnectionInterceptor(private val context: Context) : Interceptor {
 
 class NoConnectivityException : IOException() {
   companion object {
-    const val MESSAGE = "Internet Connection"
+    const val MESSAGE = "Error Internet Connection"
   }
   override val message: String
     get() = MESSAGE
