@@ -9,7 +9,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- * Adapter Factory to implement on Retrofit Builder.
+ * Call Adapter Factory to implement on Retrofit Builder, to receive LiveData
  * https://gist.github.com/AkshayChordiya/15cfe7ca1842d6b959e77c04a073a98f
  */
 
