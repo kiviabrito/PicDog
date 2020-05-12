@@ -12,6 +12,10 @@ sealed class MainStateEvent {
 
     object TappedSignOut : MainStateEvent()
 
+    class TappedImage(
+        val picture: String?
+    ): MainStateEvent()
+
     object None : MainStateEvent()
 
     // Add expandImage

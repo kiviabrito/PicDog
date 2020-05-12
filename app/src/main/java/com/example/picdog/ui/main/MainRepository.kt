@@ -97,5 +97,4 @@ class MainRepository(
       MutableLiveData((DataState.error(e.message ?: "Unknown")))
     }
   }
-
 }

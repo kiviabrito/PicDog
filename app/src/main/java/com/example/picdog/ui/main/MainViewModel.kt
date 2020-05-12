@@ -55,6 +55,15 @@ class MainViewModel(
         repository.signOut()
       }
 
+      is MainStateEvent.TappedImage -> {
+        MutableLiveData(
+          (DataState.data(
+            null,
+            MainViewState(pictureUrl = stateEvent.picture)
+          ))
+        )
+      }
+
       is MainStateEvent.None -> {
         return AbsentLiveData.create()
       }
@@ -67,6 +76,12 @@ class MainViewModel(
   fun setFeedData(list: List<String>) {
     val update = getCurrentViewStateOrNew()
     update.feed = list
+    _viewState.value = update
+  }
+
+  fun setPicture(picture: String?) {
+    val update = getCurrentViewStateOrNew()
+    update.pictureUrl = picture
     _viewState.value = update
   }
 

@@ -39,6 +39,7 @@ class MainFragment : Fragment(), DogPictureView {
   private val adapter: DogPictureAdapter by lazy {
     DogPictureAdapter(listOf())
   }
+  private var expandedImageDialog: Dialog? = null
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -85,8 +86,11 @@ class MainFragment : Fragment(), DogPictureView {
         event.getContentIfNotHandled()?.let { mainViewState ->
           println("DEBUG: DataState: $mainViewState")
           mainViewState.feed?.let { list ->
-            // set BlogPosts data
             viewModel.setFeedData(list)
+          }
+
+          mainViewState.pictureUrl?.let { picture ->
+            viewModel.setPicture(picture)
           }
         }
       }
@@ -94,25 +98,38 @@ class MainFragment : Fragment(), DogPictureView {
 
     viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
       viewState.feed?.let { list ->
-        println("DEBUG: Setting pictures to RecyclerView: ${list}")
+        println("DEBUG: Setting pictures to RecyclerView: $list")
         adapter.setItemsAdapter(list)
+      }
+
+      viewState.pictureUrl?.let {picture ->
+        if (picture != "") {
+          showExpandedImage(picture)
+        }
       }
 
     })
   }
 
   override fun openDogPicture(picture: String) {
+    viewModel.setStateEvent(MainStateEvent.TappedImage(picture))
+  }
+
+  private fun showExpandedImage(picture: String) {
     val expandedLayout = layoutInflater.inflate(R.layout.dialog_expanded_picture, null)
     val expandedImage = expandedLayout.findViewById<ImageView>(R.id.expanded_image)
-
     Glide.with(requireContext())
       .load(picture)
       .into(expandedImage)
-
-    val builder = Dialog(requireContext())
-    builder.requestWindowFeature(Window.FEATURE_NO_TITLE)
-    builder.setContentView(expandedLayout)
-    builder.show()
+    expandedImageDialog = Dialog(requireContext()).apply {
+      this.requestWindowFeature(Window.FEATURE_NO_TITLE)
+      this.setCanceledOnTouchOutside(true)
+      this.setContentView(expandedLayout)
+      this.show()
+      this.setOnCancelListener {
+        viewModel.setStateEvent(MainStateEvent.TappedImage(""))
+      }
+    }
   }
 
   private fun showProgressBar(isVisible: Boolean) {
@@ -121,6 +138,14 @@ class MainFragment : Fragment(), DogPictureView {
     } else {
       main_progress_bar.visibility = View.INVISIBLE
     }
+  }
+
+  override fun onPause() {
+    if (expandedImageDialog != null && expandedImageDialog!!.isShowing) {
+      expandedImageDialog!!.dismiss()
+      expandedImageDialog = null
+    }
+    super.onPause()
   }
 
 }

@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
       // handle Data<T>
       dataState.data?.let { event ->
         event.getContentIfNotHandled()?.let { mainViewState ->
-          println("DEBUG: DataState: ${mainViewState}")
+          println("DEBUG: DataState: $mainViewState")
           mainViewState.isSignOut?.let {
             viewModel.setIsSignOut(it)
           }
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     viewModel.viewState.observe(this, Observer { viewState ->
       // Handle Sign Out Response
       viewState.isSignOut?.let { success ->
-        println("DEBUG: Sign out response is success: ${success}")
+        println("DEBUG: Sign out response is success: $success")
         handleSignOut()
       }
     })
