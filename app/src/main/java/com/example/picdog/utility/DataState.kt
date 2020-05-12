@@ -1,5 +1,11 @@
 package com.example.picdog.utility
 
+/**
+ * Class used to send updates to the View, it could call the methods:
+ *  - error, which sets the message var,
+ *  - loading, which sets the loading var or
+ *  - data, which sets the message and data var.
+ */
 
 data class DataState<T>(
   var message: Event<String>? = null,
