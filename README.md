@@ -49,7 +49,7 @@ For the view it is using three Activities (SplashActivity, AuthActivity and Main
 
     EditText where the user should enter the email, and a "SIGN UP" Button where the user can sign up to the app.
 
-![alt text](Screenshot_AuthFragment.png) 
+![alt text](https://github.com/kiviabrito/PicDog/blob/master/Screenshot_AuthActivity.png) 
 
 - MainActivity : 
 
@@ -61,7 +61,7 @@ For the view it is using three Activities (SplashActivity, AuthActivity and Main
     Switch between tabs(displaying fotos from different breeds), when clicking on a picture it shows a dialog with the expanded picture, and the user also has a option to sign out.
 
 
-![alt text](Screenshot_AuthFragment.png) 
+![alt text](https://github.com/kiviabrito/PicDog/blob/master/Screenshot_MainActivity.png) 
 
 
 ## Executar o app
