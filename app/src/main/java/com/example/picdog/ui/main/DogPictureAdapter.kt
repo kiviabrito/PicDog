@@ -13,7 +13,7 @@ interface DogPictureView {
   fun openDogPicture(picture: String)
 }
 
-class DogPictureAdapter(private var items: ArrayList<String>) :
+class DogPictureAdapter(private var items: List<String>) :
   RecyclerView.Adapter<DogPictureAdapter.DogListViewHolder>() {
 
   var dogPictureView: DogPictureView? = null
@@ -27,7 +27,7 @@ class DogPictureAdapter(private var items: ArrayList<String>) :
     return items.size
   }
 
-  fun setItemsAdapter(newList: ArrayList<String>) {
+  fun setItemsAdapter(newList: List<String>) {
     val oldList = items
     val diffCallback = PokemonDiffCallback(oldList, newList)
     val diffResult = DiffUtil.calculateDiff(diffCallback)

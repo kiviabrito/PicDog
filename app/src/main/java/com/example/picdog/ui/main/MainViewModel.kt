@@ -25,8 +25,11 @@ class MainViewModel(
 
   val errorResponse : SingleLiveData<String> = SingleLiveData()
 
-  private val _feedResponse: MutableLiveData<ArrayList<String>> = MutableLiveData()
-  val feedResponse: LiveData<ArrayList<String>> = _feedResponse
+  private val _feedResponse: MutableLiveData<List<String>> = MutableLiveData()
+  val feedResponse: LiveData<List<String>> = _feedResponse
+
+  private val _expandedPicture: MutableLiveData<String> = MutableLiveData()
+  val expandedPicture: LiveData<String> = _expandedPicture
 
   var isConnected = true
 
@@ -52,7 +55,7 @@ class MainViewModel(
       try {
         val feed = database.feedDao().findByCategory(category)
         feed?.let {
-          postFeed(feed)
+          _feedResponse.postValue(feed.list)
         }
         if (isConnected) {
           requestUpdateFromNetwork(category, feed)
@@ -70,8 +73,8 @@ class MainViewModel(
         val response = service.feedRequest(category, userEntity.token)
         if (response.isSuccessful) {
           if (feed != response.body()) {
+            _feedResponse.postValue(response.body()!!.list)
             database.feedDao().upsert(response.body()!!)
-            postFeed(response.body()!!)
             glide.cachePictures(response.body()!!.list)
           }
         } else {
@@ -85,15 +88,14 @@ class MainViewModel(
     }
   }
 
-  private fun postFeed(feed: FeedEntity) {
-    val photoArray = arrayListOf<String>()
-    feed.list.flatMapTo(photoArray) { arrayListOf(it) }
-    _feedResponse.postValue(photoArray)
-  }
 
   private fun postError(e: Exception) {
     isConnected = e.message != NoConnectivityException.MESSAGE
     errorResponse.postValue(e.message ?: NoConnectivityException.MESSAGE)
+  }
+
+  fun setExpandedPicture(picture: String) {
+    _expandedPicture.postValue(picture)
   }
 
   fun signOut() : Boolean {

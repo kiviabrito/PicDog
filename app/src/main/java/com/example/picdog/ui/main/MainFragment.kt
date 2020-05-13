@@ -35,6 +35,7 @@ class MainFragment : Fragment(), DogPictureView {
 
   private lateinit var viewModel: MainViewModel
   private val adapter: DogPictureAdapter by lazy { DogPictureAdapter(ArrayList()) }
+  var expandedPictureDialog: Dialog? = null
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +68,6 @@ class MainFragment : Fragment(), DogPictureView {
     viewModel.feedResponse.observe(viewLifecycleOwner, Observer { list ->
       root.main_progress_bar.visibility = View.GONE
       adapter.setItemsAdapter(list)
-      root.main_progress_bar.visibility = View.GONE
 
     })
 
@@ -76,9 +76,19 @@ class MainFragment : Fragment(), DogPictureView {
       Toast.makeText(requireContext(), getString(R.string.error_message, message), Toast.LENGTH_SHORT)
         .show()
     })
+
+    viewModel.expandedPicture.observe(viewLifecycleOwner, Observer { picture ->
+      if (picture != "") {
+        expandedPictureDialog(picture)
+      }
+    })
   }
 
   override fun openDogPicture(picture: String) {
+    viewModel.setExpandedPicture(picture)
+  }
+
+  fun expandedPictureDialog(picture: String) {
     val expandedLayout = layoutInflater.inflate(R.layout.dialog_expanded_picture, null)
     val expandedImage = expandedLayout.findViewById<ImageView>(R.id.expanded_image)
 
@@ -86,10 +96,23 @@ class MainFragment : Fragment(), DogPictureView {
       .load(picture)
       .into(expandedImage)
 
-    val builder = Dialog(requireContext())
-    builder.requestWindowFeature(Window.FEATURE_NO_TITLE)
-    builder.setContentView(expandedLayout)
-    builder.show()
+    expandedPictureDialog = Dialog(requireContext()).apply {
+      this.requestWindowFeature(Window.FEATURE_NO_TITLE)
+      this.setContentView(expandedLayout)
+      this.setCanceledOnTouchOutside(true)
+      this.show()
+      this.setOnCancelListener {
+        viewModel.setExpandedPicture("")
+      }
+    }
+  }
+
+  override fun onStop() {
+    expandedPictureDialog?.let {
+      it.dismiss()
+    }
+    expandedPictureDialog = null
+    super.onStop()
   }
 
 }
