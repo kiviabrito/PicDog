@@ -30,7 +30,7 @@ Two different models were receive from a success API calls :
 Retrofit + Gson are working together to deserialize the Json, response from the API call, to those 2 models described above.
 In case of an error response, ErrorResponse was create to catch the message.
 
-For the database cashing it is using the "UserEntity" and "FeedEntity", which contain relevante information to run the app on the offline mode.
+For the database it is using the "UserEntity" and "FeedEntity", which contain relevante information to run the app on the offline mode.
 
 For the picture cashing, it is using Glide.
 
