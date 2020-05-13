@@ -14,17 +14,18 @@ import com.example.picdog.utility.SingleLiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class AuthViewModel(
   private val service: PicDogService = App.picDogService,
   private val userDao: UserDao = App.db.userDao()
 ) : ViewModel() {
 
-  // Handle Response
+  // Emits Response
   val signUpResponse: SingleLiveData<SignupResponse> = SingleLiveData()
   var test = signUpResponse.value
 
-  // Handle Sign Up Check
+  // Emits Sign Up Check
   val isSignUp: SingleLiveData<Boolean> = SingleLiveData()
 
   fun signUp(email: String) {
@@ -32,18 +33,26 @@ class AuthViewModel(
       try {
         val response = service.signupRequest(email)
         if (response.isSuccessful) {
-          test = SignupResponse.Success
-          userDao.upsert(response.body()!!.user)
-          signUpResponse.postValue(SignupResponse.Success)
+          handleSuccessResponse(response)
         } else {
-          val reader = response.errorBody()?.charStream()
-          val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          signUpResponse.postValue(SignupResponse.Failure(errorResponse.error.message))
+          handleErrorResponse(response)
         }
       } catch (e: Exception) {
         signUpResponse.postValue(SignupResponse.Failure(e.message ?: NoConnectivityException.MESSAGE))
       }
     }
+  }
+
+  private suspend fun handleSuccessResponse(response: Response<UserResponse>) {
+    test = SignupResponse.Success
+    userDao.upsert(response.body()!!.user)
+    signUpResponse.postValue(SignupResponse.Success)
+  }
+
+  private fun handleErrorResponse(response: Response<UserResponse>) {
+    val reader = response.errorBody()?.charStream()
+    val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
+    signUpResponse.postValue(SignupResponse.Failure(errorResponse.error.message))
   }
 
   fun checkIfIsSignUp() {

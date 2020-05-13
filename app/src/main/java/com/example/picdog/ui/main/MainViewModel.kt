@@ -16,6 +16,7 @@ import com.example.picdog.utility.SingleLiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 
 class MainViewModel(
@@ -25,11 +26,14 @@ class MainViewModel(
   private val glide: GlideCache? = App.glideCache
 ) : ViewModel() {
 
-  val errorResponse : SingleLiveData<String> = SingleLiveData()
+  // Emits Error Response
+  val errorResponse: SingleLiveData<String> = SingleLiveData()
 
+  // Emits Feed Response
   private val _feedResponse: MutableLiveData<List<String>> = MutableLiveData()
   val feedResponse: LiveData<List<String>> = _feedResponse
 
+  // Emits Expanded Picture Status
   private val _expandedPicture: MutableLiveData<String> = MutableLiveData()
   val expandedPicture: LiveData<String> = _expandedPicture
 
@@ -63,34 +67,41 @@ class MainViewModel(
           requestUpdateFromNetwork(category, feed)
         }
       } catch (e: Exception) {
-        postError(e)
+        postErrorFromException(e)
       }
     }
   }
 
   suspend fun requestUpdateFromNetwork(category: String, feed: FeedEntity?) {
     try {
-      val user = userDao.selectAll().firstOrNull()
-      user?.let { userEntity ->
+      userDao.selectAll().firstOrNull()?.let { userEntity ->
         val response = service.feedRequest(category, userEntity.token)
         if (response.isSuccessful) {
-          if (feed != response.body()) {
-            _feedResponse.postValue(response.body()!!.list)
-            feedDao.upsert(response.body()!!)
-            glide?.cachePictures(response.body()!!.list)
-          }
+          handleSuccessResponse(feed, response)
         } else {
-          val reader = response.errorBody()?.charStream()
-          val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
-          this.errorResponse.postValue(errorResponse.error.message)
+          handleErrorResponse(response)
         }
       }
     } catch (e: Exception) {
-      postError(e)
+      postErrorFromException(e)
     }
   }
 
-  fun postError(e: Exception) {
+  private suspend fun handleSuccessResponse(feed: FeedEntity?, response: Response<FeedEntity>) {
+    if (feed != response.body()) {
+      _feedResponse.postValue(response.body()!!.list)
+      feedDao.upsert(response.body()!!)
+      glide?.cachePictures(response.body()!!.list)
+    }
+  }
+
+  private fun handleErrorResponse(response: Response<FeedEntity>) {
+    val reader = response.errorBody()?.charStream()
+    val errorResponse = Gson().fromJson(reader, ErrorResponse::class.java)
+    this.errorResponse.postValue(errorResponse.error.message)
+  }
+
+  fun postErrorFromException(e: Exception) {
     isConnected = e.message != NoConnectivityException.MESSAGE
     errorResponse.postValue(e.message ?: NoConnectivityException.MESSAGE)
   }
@@ -99,7 +110,7 @@ class MainViewModel(
     _expandedPicture.postValue(picture)
   }
 
-  fun signOut() : Boolean {
+  fun signOut(): Boolean {
     return try {
       viewModelScope.launch(Dispatchers.IO) {
         userDao.deleteAll()

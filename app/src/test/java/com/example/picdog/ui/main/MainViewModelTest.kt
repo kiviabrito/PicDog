@@ -126,10 +126,10 @@ class MainViewModelTest {
 
   @org.junit.jupiter.api.Test
   @Throws(Exception::class)
-  fun postError_returnErrorInternetConnection() {
+  fun postErrorFromException_returnErrorInternetConnection() {
     // ARRANGE
     // ACT
-    mainViewModel.postError(java.lang.Exception("Internet Connection"))
+    mainViewModel.postErrorFromException(java.lang.Exception("Internet Connection"))
     // ASSERT
     assertEquals(mainViewModel.isConnected, false)
     assertEquals(mainViewModel.errorResponse.value, "Internet Connection")
@@ -137,10 +137,10 @@ class MainViewModelTest {
 
   @org.junit.jupiter.api.Test
   @Throws(Exception::class)
-  fun postError_returnErrorMessage() {
+  fun postErrorFromException_returnErrorMessage() {
     // ARRANGE
     // ACT
-    mainViewModel.postError(java.lang.Exception("Another Error"))
+    mainViewModel.postErrorFromException(java.lang.Exception("Another Error"))
     // ASSERT
     assertEquals(mainViewModel.isConnected, true)
     assertEquals(mainViewModel.errorResponse.value, "Another Error")
