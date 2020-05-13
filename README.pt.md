@@ -7,7 +7,7 @@ Exibe fotos de cachorro pela raça.
 ## Estrutura:
 Alguns dos componentes utilizados são:
 
-- Arquitetura MVVM.
+- Arquitetura MVI.
 - Room DataBase - para armazenamento em cache local.
 - Corotinas - para tarefas em segundo plano, como chamadas de rede e acesso ao banco de dados.
 - Retrofit - para as chamadas de rede.
@@ -50,7 +50,7 @@ Para a visualização, está sendo utilizada três atividades (SplashActivity, A
     EditText onde o usuário deve inserir o email e um botão "SIGN UP", onde o usuário pode se inscrever no aplicativo.
 
 
-![alt text](https://github.com/kiviabrito/PicDog/blob/master/Screenshot_AuthActivity.png) 
+![alt text](https://github.com/kiviabrito/PicDog/blob/MVI/Screenshot_AuthActivity.png) 
 
 
 - MainActivity :
@@ -63,7 +63,7 @@ Para a visualização, está sendo utilizada três atividades (SplashActivity, A
     Alterne entre as guias (exibindo fotos de diferentes raças). Ao clicar numa imagem, é exibida uma caixa de diálogo com a imagem expandida. O usuário também tem a opção de sair da conta.
 
 
-![alt text](https://github.com/kiviabrito/PicDog/blob/master/Screenshot_MainActivity.png) 
+![alt text](https://github.com/kiviabrito/PicDog/blob/MVI/Screenshot_MainActivity.png) 
 
 
 ## Executar o app

@@ -7,7 +7,7 @@ Show dog pictures by the breed.
 ## Structure:
 Some os the components used are:
 
-- MVVM Architecture.
+- MVI Architecture.
 - Room DataBase - for local caching.
 - Coroutines - for tasks on the background, as network calls and access to database.
 - Retrofit - for the network calls.
