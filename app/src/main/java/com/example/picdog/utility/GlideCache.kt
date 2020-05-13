@@ -14,6 +14,7 @@ class GlideCache(private val context: Context) {
         .load(it)
         .downloadOnly(500, 500)
       future.get()
+      println("DEBUG: Caching Picture : $it")
     }
   }
 

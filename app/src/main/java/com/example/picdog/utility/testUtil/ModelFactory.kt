@@ -11,8 +11,8 @@ class ModelFactory {
 
     fun createUserEntity(): UserEntity {
       return UserEntity(
-        _id = Random.toString(),
-        token = Random.toString(),
+        _id = UUID.randomUUID().toString(),
+        token = UUID.randomUUID().toString(),
         createdAt = Date().toString(),
         updatedAt = Date().toString(),
         __v = 0
@@ -31,10 +31,10 @@ class ModelFactory {
       return FeedEntity(
         category = category,
         list = listOf(
-          Random.toString(),
-          Random.toString(),
-          Random.toString(),
-          Random.toString()
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString()
         )
       )
     }

@@ -3,9 +3,11 @@ package com.example.picdog.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picdog.App
-import com.example.picdog.db.AppDatabase
+import com.example.picdog.db.UserDao
 import com.example.picdog.model.ErrorResponse
 import com.example.picdog.model.SignupResponse
+import com.example.picdog.model.UserEntity
+import com.example.picdog.model.UserResponse
 import com.example.picdog.network.NoConnectivityException
 import com.example.picdog.network.PicDogService
 import com.example.picdog.utility.SingleLiveData
@@ -15,11 +17,12 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
   private val service: PicDogService = App.picDogService,
-  private val database: AppDatabase = App.db
+  private val userDao: UserDao = App.db.userDao()
 ) : ViewModel() {
 
   // Handle Response
   val signUpResponse: SingleLiveData<SignupResponse> = SingleLiveData()
+  var test = signUpResponse.value
 
   // Handle Sign Up Check
   val isSignUp: SingleLiveData<Boolean> = SingleLiveData()
@@ -29,7 +32,8 @@ class AuthViewModel(
       try {
         val response = service.signupRequest(email)
         if (response.isSuccessful) {
-          database.userDao().upsert(response.body()!!.user)
+          test = SignupResponse.Success
+          userDao.upsert(response.body()!!.user)
           signUpResponse.postValue(SignupResponse.Success)
         } else {
           val reader = response.errorBody()?.charStream()
@@ -44,7 +48,7 @@ class AuthViewModel(
 
   fun checkIfIsSignUp() {
     viewModelScope.launch(Dispatchers.Default) {
-      val user = App.db.userDao().selectAll().firstOrNull()
+      val user = userDao.selectAll().firstOrNull()
       if (user == null) {
         isSignUp.postValue(false)
       } else {

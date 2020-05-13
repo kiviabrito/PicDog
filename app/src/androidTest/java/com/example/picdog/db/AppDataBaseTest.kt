@@ -1,9 +1,8 @@
-package com.example.picdog
+package com.example.picdog.db
 
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.picdog.db.AppDatabase
 import com.example.picdog.utility.testUtil.ModelFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-class AppDataBaseInstrumentedTest {
+class AppDataBaseTest {
 
   private lateinit var database: AppDatabase
 

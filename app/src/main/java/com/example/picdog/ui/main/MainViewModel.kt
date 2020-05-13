@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picdog.App
-import com.example.picdog.db.AppDatabase
+import com.example.picdog.db.FeedDao
+import com.example.picdog.db.UserDao
 import com.example.picdog.model.ErrorResponse
 import com.example.picdog.model.FeedEntity
 import com.example.picdog.network.NoConnectivityException
@@ -19,8 +20,9 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(
   private val service: PicDogService = App.picDogService,
-  private val database: AppDatabase = App.db,
-  private val glide: GlideCache = App.glideCache
+  private val userDao: UserDao = App.db.userDao(),
+  private val feedDao: FeedDao = App.db.feedDao(),
+  private val glide: GlideCache? = App.glideCache
 ) : ViewModel() {
 
   val errorResponse : SingleLiveData<String> = SingleLiveData()
@@ -50,10 +52,10 @@ class MainViewModel(
     }
   }
 
-  private fun getFeed(category: String) {
+  fun getFeed(category: String) {
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        val feed = database.feedDao().findByCategory(category)
+        val feed = feedDao.findByCategory(category)
         feed?.let {
           _feedResponse.postValue(feed.list)
         }
@@ -66,16 +68,16 @@ class MainViewModel(
     }
   }
 
-  private suspend fun requestUpdateFromNetwork(category: String, feed: FeedEntity?) {
+  suspend fun requestUpdateFromNetwork(category: String, feed: FeedEntity?) {
     try {
-      val user = database.userDao().selectAll().firstOrNull()
+      val user = userDao.selectAll().firstOrNull()
       user?.let { userEntity ->
         val response = service.feedRequest(category, userEntity.token)
         if (response.isSuccessful) {
           if (feed != response.body()) {
             _feedResponse.postValue(response.body()!!.list)
-            database.feedDao().upsert(response.body()!!)
-            glide.cachePictures(response.body()!!.list)
+            feedDao.upsert(response.body()!!)
+            glide?.cachePictures(response.body()!!.list)
           }
         } else {
           val reader = response.errorBody()?.charStream()
@@ -88,8 +90,7 @@ class MainViewModel(
     }
   }
 
-
-  private fun postError(e: Exception) {
+  fun postError(e: Exception) {
     isConnected = e.message != NoConnectivityException.MESSAGE
     errorResponse.postValue(e.message ?: NoConnectivityException.MESSAGE)
   }
@@ -101,9 +102,9 @@ class MainViewModel(
   fun signOut() : Boolean {
     return try {
       viewModelScope.launch(Dispatchers.IO) {
-        database.userDao().deleteAll()
-        database.feedDao().deleteAll()
-        glide.clearCache()
+        userDao.deleteAll()
+        feedDao.deleteAll()
+        glide?.clearCache()
       }
       true
     } catch (e: Exception) {

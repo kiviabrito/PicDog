@@ -2,6 +2,7 @@ package com.example.picdog
 
 import android.app.Application
 import com.example.picdog.db.AppDatabase
+import com.example.picdog.network.PicDogRetrofitBuilder
 import com.example.picdog.network.PicDogService
 import com.example.picdog.utility.GlideCache
 
@@ -14,7 +15,7 @@ class App : Application() {
     lateinit var db: AppDatabase
 
     val picDogService by lazy {
-      PicDogService.create()
+      PicDogRetrofitBuilder.apiService
     }
 
     val glideCache by lazy {
