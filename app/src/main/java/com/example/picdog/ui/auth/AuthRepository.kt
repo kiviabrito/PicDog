@@ -11,7 +11,7 @@ import com.example.picdog.utility.GenericApiResponse
 import com.example.picdog.utility.NetworkBoundResource
 
 /**
- * getUser(eamil: String) - first creatCall() is called and fetches user from server, once it gets the response
+ * getUser(email: String) - first createCall() is called and fetches user from server, once it gets the response
  * handleApiSuccessResponse() is called and it updates the database and the DataState.
  */
 
