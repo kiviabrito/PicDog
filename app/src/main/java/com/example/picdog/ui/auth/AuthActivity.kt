@@ -40,6 +40,7 @@ class AuthActivity : AppCompatActivity() {
         is SignupResponse.Success -> {
           val intent = Intent(this, MainActivity::class.java)
           startActivity(intent)
+          finish()
         }
         is SignupResponse.Failure -> {
           Toast.makeText(this, getString(R.string.error_message,response.message), Toast.LENGTH_LONG).show()
