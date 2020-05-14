@@ -63,10 +63,10 @@ Alguns dos componentes utilizados são:
 ## Modelos:
 Dois modelos diferentes foram recebidos das chamadas de API bem-sucedida:
 
-- [] https://iddog-nrizncxqba-uc.a.run.app/feed ->
+- [ ] https://iddog-nrizncxqba-uc.a.run.app/feed ->
 - FeedEntity - com a categoria (raça) e uma lista com as url das fotos.
 
-- [] https://iddog-nrizncxqba-uc.a.run.app/signUp ->
+- [ ] https://iddog-nrizncxqba-uc.a.run.app/signUp ->
 - UserResponse - com as informações do usuário (UserEntity).
 
 O Retrofit + Gson estão trabalhando juntos para desserializar o Json, resposta da chamada da API, para os dois modelos descritos acima.
