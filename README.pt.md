@@ -18,6 +18,47 @@ Alguns dos componentes utilizados são:
 - ConstraintLayout - para o design do layout.
 - CardView - para o design do layout.
 
+##Libs:
+
+   **JUNIT JUPITER (JUnit5) - Para test Unitário**
+   
+                def junit_jupiter_version = "5.3.2"
+                testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+                testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+            
+   **COROUTINES-TEST - Para test Unitário**
+   
+                testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.6'
+            
+   **MOCKITO - Para test Unitário.**
+   
+                def mockito_version = "2.25.0"
+                testImplementation "org.mockito:mockito-core:$mockito_version"
+                testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+            
+   **GSON - Para desserialização de error.**
+   
+                implementation 'com.google.code.gson:gson:2.8.6'
+            
+   **RETROFIT - Para chamadas de rede.**
+   
+                def retrofitVersion = "2.7.1"
+                implementation ("com.squareup.retrofit2:retrofit:$retrofitVersion")
+                implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+            
+   **ROOM DATABASE - Para armazenamento local de dados.**
+   
+                def room_version = "2.2.5"
+                implementation "androidx.room:room-runtime:$room_version"
+                kapt "androidx.room:room-compiler:$room_version"
+                implementation "androidx.room:room-ktx:$room_version"
+            
+   **GLIDE - Para download e cache das imagens.**
+   
+                def glide_version = "4.11.0"
+                implementation "com.github.bumptech.glide:glide:$glide_version"
+                kapt "com.github.bumptech.glide:compiler:$glide_version"
+
 
 ## Modelos:
 Dois modelos diferentes foram recebidos das chamadas de API bem-sucedida:
