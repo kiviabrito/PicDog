@@ -1,4 +1,3 @@
-
 # PicDog para Android - Kotlin
 
 ## Funcionalidade
@@ -18,7 +17,7 @@ Alguns dos componentes utilizados são:
 - ConstraintLayout - para o design do layout.
 - CardView - para o design do layout.
 
-##Libs:
+## Libs:
 
    **JUNIT JUPITER (JUnit5) - Para test Unitário**
    
@@ -111,4 +110,5 @@ Para a visualização, está sendo utilizada três atividades (SplashActivity, A
 ## Executar o app
 
 Nenhuma atualização é necessária, basta clonar o projeto e executá-lo.
+
 Nota: Para o aplicativo funcionar no modo offline, é necessário que o usuário tenha pelo menos um acesso com a Internet conectada, para que possa buscar os dados da rede e armazená-los na base de dados local.
