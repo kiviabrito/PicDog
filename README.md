@@ -2,9 +2,9 @@
 
 ## English
 
-https://github.com/kiviabrito/PicDog/blob/master/README.en.md
+https://github.com/kiviabrito/PicDog-Android/blob/master/README.en.md
 
 ## Português
 
-https://github.com/kiviabrito/PicDog/blob/master/README.pt.md
+https://github.com/kiviabrito/PicDog-Android/blob/master/README.pt.md
 
